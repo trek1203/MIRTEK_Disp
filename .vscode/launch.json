@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32F411",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/firmware.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "gdbPath": "gdb-multiarch",
+            "device": "STM32F411CEUx",
+            "interface": "swd",
+            "serialNumber": "",
+            "svdFile": "${workspaceFolder}/vendor/STM32F411.svd",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "raw",
+            "objdumpPath": "/usr/bin/arm-none-eabi-objdump",
+            "toolchainPrefix": "arm-none-eabi-"
+        }
+    ]
+}

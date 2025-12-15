@@ -1,0 +1,9 @@
+device STM32F411CE
+if SWD
+speed 4000
+connect
+halt
+loadfile build/firmware.hex
+r
+g
+exit

@@ -1,0 +1,312 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}",
+                "-B",
+                "${workspaceFolder}/build",
+                "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/arm-toolchain.cmake",
+                "-Darm_toolchain=/usr/bin",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-G",
+                "Ninja"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Configure CMake project"
+        },
+        {
+            "label": "CMake: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--parallel",
+                "8"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build the project"
+        },
+        {
+            "label": "CMake: Rebuild",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--clean-first",
+                "--parallel",
+                "8",
+                "--verbose"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Clean and rebuild the project"
+        },
+        {
+            "label": "CMake: Clean",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--target",
+                "clean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Clean build directory"
+        },
+        {
+            "label": "Firmware: Show Size",
+            "type": "shell",
+            "command": "arm-none-eabi-size",
+            "args": [
+                "--format=berkeley",
+                "${workspaceFolder}/build/firmware.elf"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Show firmware size information"
+        },
+        {
+            "label": "Firmware: Analyze Sections",
+            "type": "shell",
+            "command": "arm-none-eabi-objdump",
+            "args": [
+                "-h",
+                "${workspaceFolder}/build/firmware.elf"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Show detailed section information"
+        },
+        {
+            "label": "Flash: OpenOCD (SWD)",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "interface/stlink.cfg",
+                "-f",
+                "target/stm32f4x.cfg",
+                "-c",
+                "program ${workspaceFolder}/build/firmware.elf verify reset exit"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Flash using OpenOCD and ST-Link"
+        },
+        {
+            "label": "Flash: OpenOCD (DFU)",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "interface/stlink-dfu.cfg",
+                "-f",
+                "target/stm32f4x.cfg",
+                "-c",
+                "program ${workspaceFolder}/build/firmware.elf verify reset exit"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Flash using DFU mode"
+        },
+        {
+            "label": "Flash: st-flash (STM32 Flash Tools)",
+            "type": "shell",
+            "command": "st-flash",
+            "args": [
+                "--reset",
+                "write",
+                "${workspaceFolder}/build/firmware.bin",
+                "0x08000000"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Flash using st-flash utility"
+        },
+        {
+            "label": "Convert: ELF to HEX",
+            "type": "shell",
+            "command": "arm-none-eabi-objcopy",
+            "args": [
+                "-O",
+                "ihex",
+                "${workspaceFolder}/build/firmware.elf",
+                "${workspaceFolder}/build/firmware.hex"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Convert ELF to Intel HEX format"
+        },
+        {
+            "label": "Convert: ELF to BIN",
+            "type": "shell",
+            "command": "arm-none-eabi-objcopy",
+            "args": [
+                "-O",
+                "binary",
+                "-S",
+                "${workspaceFolder}/build/firmware.elf",
+                "${workspaceFolder}/build/firmware.bin"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Convert ELF to raw binary format"
+        },
+        {
+            "label": "Analyze: Disassemble",
+            "type": "shell",
+            "command": "arm-none-eabi-objdump",
+            "args": [
+                "-d",
+                "-S",
+                "${workspaceFolder}/build/firmware.elf",
+                ">",
+                "${workspaceFolder}/build/disassembly.txt"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "/bin/bash",
+                    "args": [
+                        "-c"
+                    ]
+                }
+            },
+            "detail": "Generate disassembly with source code"
+        },
+        {
+            "label": "Analyze: Symbols",
+            "type": "shell",
+            "command": "arm-none-eabi-nm",
+            "args": [
+                "--size-sort",
+                "--numeric-sort",
+                "${workspaceFolder}/build/firmware.elf"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Show symbols sorted by size"
+        },
+        {
+            "label": "Debug: Start OpenOCD Server",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "interface/stlink.cfg",
+                "-f",
+                "target/stm32f4x.cfg"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": [],
+            "detail": "Start OpenOCD server for debugging"
+        },
+        {
+            "label": "Debug: Connect GDB",
+            "type": "shell",
+            "command": "arm-none-eabi-gdb",
+            "args": [
+                "-q",
+                "-ex",
+                "target extended-remote localhost:3333",
+                "-ex",
+                "monitor reset halt",
+                "-ex",
+                "load",
+                "-ex",
+                "b main",
+                "${workspaceFolder}/build/firmware.elf"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Connect GDB to OpenOCD server"
+        },
+        {
+            "label": "Flash: J-Link",
+            "type": "shell",
+            "command": "JLinkExe",
+            "args": [
+                "-device",
+                "STM32F411CE",
+                "-if",
+                "SWD",
+                "-speed",
+                "4000",
+                "-autoconnect",
+                "1",
+                "-CommanderScript",
+                "${workspaceFolder}/tools/jlink_flash.jlink"
+            ],
+            "options": {
+            "cwd": "${workspaceFolder}"
+            },
+            "detail": "Flash using J-Link programmer",
+            "problemMatcher": []
+        },
+        {
+            "label": "Debug: Start J-Link Server",
+            "type": "shell",
+            "command": "JLinkGDBServer",
+            "args": [
+                "-device",
+                "STM32F411CE",
+                "-if",
+                "SWD",
+                "-speed",
+                "4000",
+                "-port",
+                "2331",
+                "-swoport",
+                "2332",
+                "-telnetport",
+                "2333",
+                "-noir"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": [],
+            "detail": "Start J-Link GDB server for debugging"
+        }
+    ]
+}
